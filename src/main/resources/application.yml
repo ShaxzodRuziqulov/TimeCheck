@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/time_check
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+security:
+  jwt:
+    secret-key: "MWIxNzc4NDg0MjMzNDVmZGY4ZjgwZTBkMDU4ZWVjYWNiMTdkZjMwNTJhOTNmNDZiYWVmN2MyOGQyNjQ2MzdiMTc="
+    expiration-time: 3600000

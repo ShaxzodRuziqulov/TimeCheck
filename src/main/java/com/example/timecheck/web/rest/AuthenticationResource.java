@@ -1,0 +1,34 @@
+package com.example.timecheck.web.rest;
+
+import com.example.timecheck.entity.User;
+import com.example.timecheck.responce.LoginResponse;
+import com.example.timecheck.service.AuthenticationService;
+import com.example.timecheck.service.JwtService;
+import com.example.timecheck.service.dto.LoginUserDto;
+import com.example.timecheck.service.dto.UserDto;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthenticationResource {
+    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
+
+    public AuthenticationResource(JwtService jwtService, AuthenticationService authenticationService) {
+        this.jwtService = jwtService;
+        this.authenticationService = authenticationService;
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
+        User authenticatedUser = authenticationService.login(loginUserDto);
+        String token = jwtService.generateToken(authenticatedUser);
+        LoginResponse loginResponse = new LoginResponse().setToken(token).setExpiresIn(jwtService.getExpirationTime());
+        return ResponseEntity.ok(loginResponse);
+    }
+}
