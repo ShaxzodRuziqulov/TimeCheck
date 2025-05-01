@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Builder
 @Data
@@ -21,7 +22,7 @@ public class UserDto {
 
     private String password;
 
-    private Long roleId;
+    private Set<Long> rolesId;
     private Long jobId;
 
     private UserStatus userStatus;

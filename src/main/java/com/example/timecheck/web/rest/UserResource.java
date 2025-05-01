@@ -28,12 +28,6 @@ public class UserResource {
         UserDto result = userService.createUser(userDto);
         return ResponseEntity.created(new URI("/api/user/create" + result.getId())).body(result);
     }
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
-        UserDto result = authenticationService.signUp(userDto);
-
-        return ResponseEntity.ok(result);
-    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@RequestBody UserDto userDto, @PathVariable Long id) throws URISyntaxException {
         if (!userDto.getId().equals(id) && userDto.getId() != 0) {

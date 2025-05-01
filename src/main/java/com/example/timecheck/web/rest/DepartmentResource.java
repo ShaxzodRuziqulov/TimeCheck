@@ -39,6 +39,11 @@ public class DepartmentResource {
         List<DepartmentDto> departments = departmentService.findAll();
         return ResponseEntity.ok().body(departments);
     }
+    @GetMapping("/activeDepartment")
+    public ResponseEntity<?> findByActiveDepartment() {
+        List<DepartmentDto> departments = departmentService.findByActiveDepartment();
+        return ResponseEntity.ok().body(departments);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getDepartment(@PathVariable Long id) {

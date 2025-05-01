@@ -23,6 +23,9 @@ public class JobService {
 
     public JobDto create(JobDto jobDto) {
         Job job = jobMapper.toEntity(jobDto);
+
+        job.setJobStatus(JobStatus.ACTIVE);
+
         job = jobRepository.save(job);
         return jobMapper.toDto(job);
     }

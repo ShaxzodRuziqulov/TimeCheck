@@ -24,6 +24,10 @@ public class DepartmentService {
 
     public DepartmentDto create(DepartmentDto departmentDto) {
         Department department = departmentMapper.toEntity(departmentDto);
+        if (department.getDepartmentStatus() == null) {
+            department.setDepartmentStatus(DepartmentStatus.ACTIVE);
+        }
+
         department = departmentRepository.save(department);
         return departmentMapper.toDto(department);
     }
@@ -59,5 +63,10 @@ public class DepartmentService {
 
         department.setDepartmentStatus(DepartmentStatus.DELETED);
         return departmentRepository.save(department);
+    }
+
+    public List<DepartmentDto> findByActiveDepartment() {
+        return departmentRepository.findByStatus(DepartmentStatus.ACTIVE)
+                .stream().map(departmentMapper::toDto).collect(Collectors.toList());
     }
 }

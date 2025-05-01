@@ -22,7 +22,12 @@ public class AuthenticationResource {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
     }
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        UserDto result = authenticationService.signUp(userDto);
 
+        return ResponseEntity.ok(result);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
