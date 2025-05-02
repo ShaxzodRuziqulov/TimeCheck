@@ -20,9 +20,9 @@ public class JobResource {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<JobDto> addJob(JobDto jobDto) throws URISyntaxException {
+    public ResponseEntity<JobDto> addJob(@RequestBody JobDto jobDto) throws URISyntaxException {
         JobDto result = jobService.create(jobDto);
-        return ResponseEntity.created(new URI("/api/admin/create" + result.getId())).body(result);
+        return ResponseEntity.created(new URI("/api/admin/job/create" + result.getId())).body(result);
     }
 
     @PutMapping("/update/{id}")
@@ -36,7 +36,7 @@ public class JobResource {
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllJobs() {
-        List<JobDto> jobs = jobService.findAll();
+        List<JobDto> jobs = jobService.findAllActive();
         return ResponseEntity.ok().body(jobs);
     }
 

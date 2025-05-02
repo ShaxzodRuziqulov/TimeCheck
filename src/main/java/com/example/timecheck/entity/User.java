@@ -45,7 +45,7 @@ public class User extends BaseEntity implements UserDetails {
     private Job job;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private UserStatus userStatus;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -69,7 +69,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.status == UserStatus.ACTIVE;
+        return this.userStatus == UserStatus.ACTIVE;
     }
 
 }

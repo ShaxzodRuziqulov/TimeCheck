@@ -25,7 +25,7 @@ public class UserService {
 
     public UserDto createUser(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
-        user.setStatus(UserStatus.ACTIVE);
+        user.setUserStatus(UserStatus.ACTIVE);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepository.save(user);
         return userMapper.toDto(user);
@@ -45,6 +45,13 @@ public class UserService {
                 .collect(Collectors
                         .toList());
     }
+    public List<UserDto> allActiveUsers() {
+        return userRepository.findByStatus(UserStatus.ACTIVE)
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors
+                        .toList());
+    }
 
     public User findUserId(Long id) {
         return userRepository
@@ -56,7 +63,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setStatus(UserStatus.DELETED);
+        user.setUserStatus(UserStatus.DELETED);
 
         return userRepository.save(user);
     }

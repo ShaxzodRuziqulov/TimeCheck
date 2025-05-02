@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
-    @Query("SELECT d FROM Department d WHERE d.departmentStatus = :status")
-    List<Department> findByStatus(@Param("status") DepartmentStatus departmentStatus);
+    @Query("SELECT d FROM Department d WHERE d.departmentStatus = :departmentStatus")
+    List<Department> findByStatus(@Param("departmentStatus") DepartmentStatus departmentStatus);
 }

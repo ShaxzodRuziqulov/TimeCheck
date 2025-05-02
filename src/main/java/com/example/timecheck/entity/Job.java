@@ -17,8 +17,7 @@ public class Job extends BaseEntity {
     private PositionStatus positionStatus;
     @Enumerated(EnumType.STRING)
     private JobStatus jobStatus;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
-
 }

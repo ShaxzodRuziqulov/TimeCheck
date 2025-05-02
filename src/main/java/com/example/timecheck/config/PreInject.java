@@ -56,7 +56,7 @@ public class PreInject {
             user.setLastName("last_name");
             user.setMiddleName("mid_name");
             user.setBirthDate(LocalDate.now());
-            user.setStatus(UserStatus.ACTIVE);
+            user.setUserStatus(UserStatus.ACTIVE);
             user.setPassword(encodePassword("123"));
             userRepository.save(user);
         }

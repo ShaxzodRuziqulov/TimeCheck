@@ -1,7 +1,6 @@
 package com.example.timecheck.web.rest;
 
 import com.example.timecheck.entity.User;
-import com.example.timecheck.service.AuthenticationService;
 import com.example.timecheck.service.UserService;
 import com.example.timecheck.service.dto.UserDto;
 import org.springframework.http.ResponseEntity;
@@ -12,21 +11,19 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/admin/user")
 public class UserResource {
 
     private final UserService userService;
-    private final AuthenticationService authenticationService;
 
-    public UserResource(UserService userService, AuthenticationService authenticationService) {
+    public UserResource(UserService userService) {
         this.userService = userService;
-        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody UserDto userDto) throws URISyntaxException {
         UserDto result = userService.createUser(userDto);
-        return ResponseEntity.created(new URI("/api/user/create" + result.getId())).body(result);
+        return ResponseEntity.created(new URI("/api/admin/user/create" + result.getId())).body(result);
     }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@RequestBody UserDto userDto, @PathVariable Long id) throws URISyntaxException {
@@ -36,10 +33,14 @@ public class UserResource {
         UserDto result = userService.update(userDto);
         return ResponseEntity.ok().body(result);
     }
-
     @GetMapping("/all")
-    public ResponseEntity<?> findAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
         List<UserDto> result = userService.allUsers();
+        return ResponseEntity.ok(result);
+    }
+    @GetMapping("/activeUser")
+    public ResponseEntity<?> findAllUsers() {
+        List<UserDto> result = userService.allActiveUsers();
         return ResponseEntity.ok(result);
     }
 

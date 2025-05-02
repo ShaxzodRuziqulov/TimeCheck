@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 public interface UserMapper extends EntityMapper<UserDto, User> {
 
     @Mapping(source = "roles", target = "rolesId")
+    @Mapping(source = "userStatus", target = "userStatus")
     @Mapping(source = "job.id", target = "jobId")
     UserDto toDto(User user);
 
     @Mapping(source = "rolesId", target = "roles")
+    @Mapping(source = "userStatus", target = "userStatus")
     @Mapping(source = "jobId", target = "job.id")
     User toEntity(UserDto userDto);
 
