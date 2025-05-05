@@ -45,6 +45,7 @@ public class UserService {
                 .collect(Collectors
                         .toList());
     }
+
     public List<UserDto> allActiveUsers() {
         return userRepository.findByStatus(UserStatus.ACTIVE)
                 .stream()
@@ -66,5 +67,9 @@ public class UserService {
         user.setUserStatus(UserStatus.DELETED);
 
         return userRepository.save(user);
+    }
+
+    public long countByActiveUser() {
+        return userRepository.countByUserStatus(UserStatus.ACTIVE);
     }
 }

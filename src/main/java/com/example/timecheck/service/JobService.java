@@ -83,4 +83,8 @@ public class JobService {
         job.setJobStatus(JobStatus.DELETED);
         return jobRepository.save(job);
     }
+
+    public long countByActiveJob() {
+        return jobRepository.countByJobStatus(JobStatus.ACTIVE);
+    }
 }

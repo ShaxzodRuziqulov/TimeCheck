@@ -69,4 +69,8 @@ public class DepartmentService {
         return departmentRepository.findByStatus(DepartmentStatus.ACTIVE)
                 .stream().map(departmentMapper::toDto).collect(Collectors.toList());
     }
+
+    public long countByActiveDepartment() {
+        return departmentRepository.countByDepartmentStatus(DepartmentStatus.ACTIVE);
+    }
 }

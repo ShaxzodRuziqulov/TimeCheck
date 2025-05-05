@@ -40,7 +40,7 @@ public class User extends BaseEntity implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "job_id")
     private Job job;
 

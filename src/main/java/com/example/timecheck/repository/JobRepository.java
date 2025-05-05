@@ -15,4 +15,7 @@ import java.util.List;
 public interface JobRepository extends JpaRepository<Job, Long> {
     @Query("SELECT j FROM Job j WHERE j.jobStatus = :jobStatus")
     List<Job> findByStatus(@Param("jobStatus") JobStatus jobStatus);
+
+    @Query("select count(j) from Job j where j.jobStatus =:jobStatus")
+    long countByJobStatus(@Param("jobStatus") JobStatus jobStatus);
 }

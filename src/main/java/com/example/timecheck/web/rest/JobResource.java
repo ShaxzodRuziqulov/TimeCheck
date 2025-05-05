@@ -1,6 +1,7 @@
 package com.example.timecheck.web.rest;
 
 import com.example.timecheck.entity.Job;
+import com.example.timecheck.entity.enumirated.PositionStatus;
 import com.example.timecheck.service.JobService;
 import com.example.timecheck.service.dto.JobDto;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/job")
@@ -40,6 +43,19 @@ public class JobResource {
         return ResponseEntity.ok().body(jobs);
     }
 
+    @GetMapping("/positions")
+    public ResponseEntity<?> getAllPositionStatuses() {
+        List<Map<String, String>> statuses = Arrays.stream(PositionStatus.values())
+                .map(status -> Map.of(
+                        "name", status.name(),
+                        "label", status.getLabel()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(statuses);
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getJob(@PathVariable Long id) {
         JobDto job = jobService.findById(id);
@@ -49,6 +65,12 @@ public class JobResource {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteJob(@PathVariable Long id) {
         Job result = jobService.delete(id);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<?> count() {
+        Long result = jobService.countByActiveJob();
         return ResponseEntity.ok().body(result);
     }
 }

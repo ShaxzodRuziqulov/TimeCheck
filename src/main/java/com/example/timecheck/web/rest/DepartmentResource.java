@@ -39,6 +39,7 @@ public class DepartmentResource {
         List<DepartmentDto> departments = departmentService.findAll();
         return ResponseEntity.ok().body(departments);
     }
+
     @GetMapping("/activeDepartment")
     public ResponseEntity<?> findByActiveDepartment() {
         List<DepartmentDto> departments = departmentService.findByActiveDepartment();
@@ -54,6 +55,12 @@ public class DepartmentResource {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteDepartment(@PathVariable Long id) {
         Department result = departmentService.delete(id);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<?> count() {
+        Long result = departmentService.countByActiveDepartment();
         return ResponseEntity.ok().body(result);
     }
 }

@@ -25,6 +25,7 @@ public class UserResource {
         UserDto result = userService.createUser(userDto);
         return ResponseEntity.created(new URI("/api/admin/user/create" + result.getId())).body(result);
     }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@RequestBody UserDto userDto, @PathVariable Long id) throws URISyntaxException {
         if (!userDto.getId().equals(id) && userDto.getId() != 0) {
@@ -33,11 +34,13 @@ public class UserResource {
         UserDto result = userService.update(userDto);
         return ResponseEntity.ok().body(result);
     }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
         List<UserDto> result = userService.allUsers();
         return ResponseEntity.ok(result);
     }
+
     @GetMapping("/activeUser")
     public ResponseEntity<?> findAllUsers() {
         List<UserDto> result = userService.allActiveUsers();
@@ -56,4 +59,9 @@ public class UserResource {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> count() {
+        long count = userService.countByActiveUser();
+        return ResponseEntity.ok(count);
+    }
 }

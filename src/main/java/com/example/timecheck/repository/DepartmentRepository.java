@@ -14,4 +14,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     @Query("SELECT d FROM Department d WHERE d.departmentStatus = :departmentStatus")
     List<Department> findByStatus(@Param("departmentStatus") DepartmentStatus departmentStatus);
+
+    @Query("select count(d) from  Department d where d.departmentStatus=:departmentStatus")
+    long countByDepartmentStatus(DepartmentStatus departmentStatus);
 }
