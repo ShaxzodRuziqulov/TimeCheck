@@ -1,27 +1,24 @@
 package com.example.timecheck.entity;
 
-import com.example.timecheck.entity.enumirated.TimeTrackStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity(name = "time_track")
 @Data
-public class TimeTrack {
+public class TimeTrack extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate date;
-    private LocalTime checkinTime;
-    private boolean confirmedByInspector;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     @ManyToOne
     private User user;
-    private String reason;
 
-    @Enumerated(EnumType.STRING)
-    private TimeTrackStatus timeTrackStatus;
+    private String delayReason;
 
 }

@@ -1,7 +1,9 @@
 package com.example.timecheck.service;
 
 import com.example.timecheck.entity.TimeTrack;
+import com.example.timecheck.entity.User;
 import com.example.timecheck.repository.TimeTrackRepository;
+import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.TimeTrackDto;
 import com.example.timecheck.service.mapper.TimeTrackMapper;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,12 @@ import java.util.stream.Collectors;
 public class TimeTrackService {
     private final TimeTrackMapper timeTrackMapper;
     private final TimeTrackRepository timeTrackRepository;
+    private final UserRepository userRepository;
 
-    public TimeTrackService(TimeTrackMapper timeTrackMapper, TimeTrackRepository timeTrackRepository) {
+    public TimeTrackService(TimeTrackMapper timeTrackMapper, TimeTrackRepository timeTrackRepository, UserRepository userRepository) {
         this.timeTrackMapper = timeTrackMapper;
         this.timeTrackRepository = timeTrackRepository;
+        this.userRepository = userRepository;
     }
 
     public TimeTrackDto create(TimeTrackDto timeTrackDto) {
@@ -26,12 +30,15 @@ public class TimeTrackService {
     }
 
     public TimeTrackDto update(TimeTrackDto timeTrackDto) {
-        if (timeTrackDto.getId() == null || !timeTrackRepository.existsById(timeTrackDto.getId())) {
-            throw new RuntimeException("Attendance not found for update");
+        TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
+
+        if (timeTrackDto.getUserId() != null) {
+            User user = userRepository.findById(timeTrackDto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            result.setUser(user);
         }
-        TimeTrack timeTrack = timeTrackMapper.toEntity(timeTrackDto);
-        timeTrackRepository.save(timeTrack);
-        return timeTrackMapper.toDto(timeTrack);
+        timeTrackRepository.save(result);
+        return timeTrackMapper.toDto(result);
     }
 
     public List<TimeTrackDto> findAll() {

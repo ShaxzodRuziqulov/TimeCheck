@@ -9,7 +9,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/timetrack")
+@RequestMapping("/api/admin/time-track")
 public class TimeTrackResource {
     private final TimeTrackService timeTrackService;
 
@@ -21,13 +21,13 @@ public class TimeTrackResource {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody TimeTrackDto timeTrackDto) {
         TimeTrackDto result = timeTrackService.create(timeTrackDto);
-        return ResponseEntity.created(URI.create("/api/admin/timetrack/create" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/api/admin/time-track/create/" + result.getId())).body(result);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@RequestBody TimeTrackDto timeTrackDto, @PathVariable Long id) {
-        if (timeTrackDto.getId() != 0 && !timeTrackDto.getId().equals(id)) {
-            return ResponseEntity.notFound().build();
+        if (timeTrackDto.getId() == 0 || !timeTrackDto.getId().equals(id)) {
+            return ResponseEntity.badRequest().body("Invalid or mismatched ID");
         }
         TimeTrackDto result = timeTrackService.update(timeTrackDto);
         return ResponseEntity.ok().body(result);
