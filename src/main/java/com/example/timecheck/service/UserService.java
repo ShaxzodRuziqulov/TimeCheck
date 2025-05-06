@@ -47,7 +47,7 @@ public class UserService {
     }
 
     public List<UserDto> allActiveUsers() {
-        return userRepository.findByStatus(UserStatus.ACTIVE)
+        return userRepository.findAllByUserStatus(UserStatus.ACTIVE)
                 .stream()
                 .map(userMapper::toDto)
                 .collect(Collectors

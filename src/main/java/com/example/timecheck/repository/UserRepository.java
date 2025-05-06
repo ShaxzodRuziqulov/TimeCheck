@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select count(u) from User u where u.userStatus= :userStatus")
     long countByUserStatus(@Param("userStatus") UserStatus userStatus);
+
+    List<User> findAllByUserStatus(UserStatus userStatus);
 }

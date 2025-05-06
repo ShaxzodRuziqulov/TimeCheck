@@ -2,6 +2,7 @@ package com.example.timecheck.service.mapper;
 
 import com.example.timecheck.entity.Role;
 import com.example.timecheck.entity.User;
+import com.example.timecheck.service.dto.RoleDTO;
 import com.example.timecheck.service.dto.UserDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,15 +14,13 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = JobMapper.class)
 public interface UserMapper extends EntityMapper<UserDto, User> {
 
-    @Mapping(source = "roles", target = "rolesId")
-    @Mapping(source = "userStatus", target = "userStatus")
     @Mapping(source = "job.id", target = "jobId")
     UserDto toDto(User user);
 
-    @Mapping(source = "rolesId", target = "roles")
-    @Mapping(source = "userStatus", target = "userStatus")
     @Mapping(source = "jobId", target = "job.id")
     User toEntity(UserDto userDto);
+
+    RoleDTO toRoleDTO(Role role);
 
     default Set<Long> mapRolesToIds(Set<Role> roles) {
         return roles.stream()
@@ -39,5 +38,4 @@ public interface UserMapper extends EntityMapper<UserDto, User> {
                 })
                 .collect(Collectors.toSet());
     }
-
 }

@@ -22,7 +22,8 @@ public class UserDto {
 
     private String password;
 
-    private Set<Long> rolesId;
+    private Set<RoleDTO> roles;
+
     private Long jobId;
 
     private UserStatus userStatus;

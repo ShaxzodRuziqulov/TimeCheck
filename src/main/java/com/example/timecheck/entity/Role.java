@@ -1,8 +1,11 @@
 package com.example.timecheck.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
