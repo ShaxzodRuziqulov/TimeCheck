@@ -1,6 +1,7 @@
 package com.example.timecheck.repository;
 
 import com.example.timecheck.entity.Department;
+import com.example.timecheck.entity.Role;
 import com.example.timecheck.entity.User;
 import com.example.timecheck.entity.enumirated.DepartmentStatus;
 import com.example.timecheck.entity.enumirated.UserStatus;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -23,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByUserStatus(@Param("userStatus") UserStatus userStatus);
 
     List<User> findAllByUserStatus(UserStatus userStatus);
+
+    List<User> findAllByRoles(Set<Role> roles);
 }
