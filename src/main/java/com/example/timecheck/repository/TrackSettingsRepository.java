@@ -8,10 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TrackSettingsRepository extends JpaRepository<TrackSettings, Long> {
 
     @Query("select t from TrackSettings t where t.trackSettingsStatus=:trackSettingsStatus")
-    List<TrackSettings> findByTrackSettingsStatus(@Param("trackSettingsStatus") TrackSettingsStatus trackSettingsStatus);
+    List<TrackSettings> findByTrackSettingsStatusList(@Param("trackSettingsStatus") TrackSettingsStatus trackSettingsStatus);
+
+    Optional<TrackSettings> findByTrackSettingsStatus(TrackSettingsStatus status);
 }

@@ -45,7 +45,7 @@ public class TrackSettingService {
 
     public List<TrackSettingsDto> findByTrackSettingsStatus() {
         return trackSettingsRepository
-                .findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
+                .findByTrackSettingsStatusList(TrackSettingsStatus.ACTIVE)
                 .stream()
                 .map(trackSettingsMapper::toDto)
                 .collect(Collectors.toList());

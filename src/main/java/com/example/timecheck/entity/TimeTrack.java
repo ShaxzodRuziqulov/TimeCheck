@@ -20,5 +20,5 @@ public class TimeTrack extends BaseEntity{
     private User user;
 
     private String delayReason;
-
+    private String endReason;
 }

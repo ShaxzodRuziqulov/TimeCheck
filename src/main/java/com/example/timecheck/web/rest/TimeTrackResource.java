@@ -1,7 +1,9 @@
 package com.example.timecheck.web.rest;
 
+import com.example.timecheck.entity.TimeTrack;
 import com.example.timecheck.service.TimeTrackService;
 import com.example.timecheck.service.dto.TimeTrackDto;
+import com.example.timecheck.service.dto.WorkSummaryDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,12 @@ public class TimeTrackResource {
         return ResponseEntity.ok().body(result);
     }
 
+    @GetMapping("/complete/{userId}")
+    public ResponseEntity<?> create(@PathVariable Long userId) {
+        TimeTrackDto result = timeTrackService.completeTimeTrack(userId);
+        return ResponseEntity.ok().body(result);
+    }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
         List<TimeTrackDto> result = timeTrackService.findAll();
@@ -50,4 +58,12 @@ public class TimeTrackResource {
         timeTrackService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/check/{userId}")
+    public ResponseEntity<?> checkIfUserCanLeave(@PathVariable Long userId) {
+        WorkSummaryDto result = timeTrackService.getTodayWorkSummary(userId);
+        return ResponseEntity.ok().body(result);
+    }
+
+
 }

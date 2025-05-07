@@ -14,6 +14,8 @@ public class TimeTrackDto {
     private Long userId;
 
     private String delayReason;
+    private String endReason;
+
     private LocalDateTime createdAt;
 
 }
