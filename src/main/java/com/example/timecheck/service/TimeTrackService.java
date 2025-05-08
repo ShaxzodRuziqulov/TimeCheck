@@ -41,15 +41,25 @@ public class TimeTrackService {
     public TimeTrackDto create(TimeTrackDto timeTrackDto) {
         LocalTime now = LocalTime.now();
 
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = LocalDateTime.from(LocalTime.from(today.atStartOfDay()));
+        LocalDateTime endOfDay = LocalDateTime.from(LocalTime.from(today.atTime(LocalTime.MAX)));
+
+        boolean isExists = timeTrackRepository.existsByUserIdAndStartTimeBetween(timeTrackDto.getUserId(), startOfDay, endOfDay);
+
+        if (isExists) {
+            throw new IllegalStateException("User already has a time track for today");
+        }
+
         TrackSettings settings = trackSettingsRepository.findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("No active track settings found"));
+                .orElseThrow(() -> new IllegalStateException("No active track settings found"));
 
         LocalTime fromTime = settings.getFromTime();
         LocalTime toTime = settings.getToTime();
 
         TimeTrack timeTrack = new TimeTrack();
         timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found")));
+                .orElseThrow(() -> new EntityNotFoundException("User not found")));
 
         if (now.isBefore(fromTime)) {
             timeTrack.setStartTime(fromTime);
@@ -66,6 +76,7 @@ public class TimeTrackService {
 
         timeTrackRepository.save(timeTrack);
         return timeTrackMapper.toDto(timeTrack);
+
     }
 
     public TimeTrackDto completeTimeTrack(Long userId) {

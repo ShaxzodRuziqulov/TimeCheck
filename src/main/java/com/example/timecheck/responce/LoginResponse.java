@@ -6,11 +6,11 @@ import lombok.Getter;
 public class LoginResponse {
     private String token;
     private long expiresIn;
+    private Long userId;
 
 
     public LoginResponse setToken(String token) {
         this.token = token;
-        ;
         return this;
     }
 
@@ -19,11 +19,17 @@ public class LoginResponse {
         return this;
     }
 
+    public LoginResponse setUserId(Long userId) {
+        this.userId = userId;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "LoginResponse{" +
                 "token='" + token + '\'' +
                 ", expiresIn=" + expiresIn +
+                ", userId=" + userId +
                 '}';
     }
 }

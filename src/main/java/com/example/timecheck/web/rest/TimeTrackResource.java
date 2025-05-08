@@ -35,7 +35,7 @@ public class TimeTrackResource {
     }
 
     @GetMapping("/complete/{userId}")
-    public ResponseEntity<?> create(@PathVariable Long userId) {
+    public ResponseEntity<?> completeTimeTrack(@PathVariable Long userId) {
         TimeTrackDto result = timeTrackService.completeTimeTrack(userId);
         return ResponseEntity.ok().body(result);
     }
@@ -63,6 +63,4 @@ public class TimeTrackResource {
         WorkSummaryDto result = timeTrackService.getTodayWorkSummary(userId);
         return ResponseEntity.ok().body(result);
     }
-
-
 }

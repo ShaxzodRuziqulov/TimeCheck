@@ -18,5 +18,8 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
 
     List<TimeTrack> findAllByCreatedAtBetweenAndEndTimeIsNull(LocalDateTime from, LocalDateTime to);
 
+    boolean existsByUserIdAndEndTimeIsNull(Long userId);
+
+    boolean existsByUserIdAndStartTimeBetween(Long userId, LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
 
 }
