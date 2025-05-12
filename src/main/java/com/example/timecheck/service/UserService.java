@@ -88,4 +88,5 @@ public class UserService {
     public long countByActiveUser() {
         return userRepository.countByUserStatus(UserStatus.ACTIVE);
     }
+
 }

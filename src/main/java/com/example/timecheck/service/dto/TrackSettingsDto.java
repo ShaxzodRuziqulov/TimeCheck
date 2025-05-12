@@ -12,6 +12,4 @@ public class TrackSettingsDto {
     private LocalTime toTime;
 
     private TrackSettingsStatus trackSettingsStatus;
-
-
 }

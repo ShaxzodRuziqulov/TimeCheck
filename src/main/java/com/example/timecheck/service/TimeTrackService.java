@@ -58,7 +58,7 @@ public class TimeTrackService {
         LocalTime fromTime = settings.getFromTime();
         LocalTime toTime = settings.getToTime();
 
-        TimeTrack timeTrack = new TimeTrack();
+        TimeTrack timeTrack = timeTrackMapper.toEntity(timeTrackDto);
         timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found")));
 
@@ -67,12 +67,7 @@ public class TimeTrackService {
         } else if (!now.isAfter(toTime)) {
             timeTrack.setStartTime(now);
         } else {
-            if (timeTrackDto.getDelayReason() == null || timeTrackDto.getDelayReason().isBlank()) {
-                throw new IllegalArgumentException("Delay reason cannot be null");
-            }
-
             timeTrack.setStartTime(now);
-            timeTrack.setDelayReason(timeTrackDto.getDelayReason());
         }
 
         timeTrackRepository.save(timeTrack);

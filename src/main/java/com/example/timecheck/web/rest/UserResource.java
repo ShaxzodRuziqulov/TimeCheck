@@ -4,6 +4,8 @@ import com.example.timecheck.entity.User;
 import com.example.timecheck.service.UserService;
 import com.example.timecheck.service.dto.UserDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -63,5 +65,14 @@ public class UserResource {
     public ResponseEntity<?> count() {
         long count = userService.countByActiveUser();
         return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> authenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(currentUser);
     }
 }
