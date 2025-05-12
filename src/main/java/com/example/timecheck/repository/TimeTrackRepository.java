@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +19,6 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
 
     List<TimeTrack> findAllByCreatedAtBetweenAndEndTimeIsNull(LocalDateTime from, LocalDateTime to);
 
-    boolean existsByUserIdAndEndTimeIsNull(Long userId);
-
-    boolean existsByUserIdAndStartTimeBetween(Long userId, LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
+    boolean existsByUserIdAndStartTimeBetween(Long user_id, LocalTime startTime, LocalTime startTime2);
 
 }

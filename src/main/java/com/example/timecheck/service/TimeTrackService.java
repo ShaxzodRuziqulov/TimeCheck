@@ -42,8 +42,9 @@ public class TimeTrackService {
         LocalTime now = LocalTime.now();
 
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = LocalDateTime.from(LocalTime.from(today.atStartOfDay()));
-        LocalDateTime endOfDay = LocalDateTime.from(LocalTime.from(today.atTime(LocalTime.MAX)));
+        LocalTime startOfDay = LocalTime.from(today.atStartOfDay());
+        LocalTime endOfDay = LocalTime.from(today.atTime(LocalTime.MAX));
+
 
         boolean isExists = timeTrackRepository.existsByUserIdAndStartTimeBetween(timeTrackDto.getUserId(), startOfDay, endOfDay);
 

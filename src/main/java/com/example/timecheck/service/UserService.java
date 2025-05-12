@@ -5,6 +5,7 @@ import com.example.timecheck.entity.enumirated.UserStatus;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.UserDto;
 import com.example.timecheck.service.mapper.UserMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +28,29 @@ public class UserService {
         User user = userMapper.toEntity(userDto);
         user.setUserStatus(UserStatus.ACTIVE);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+
         userRepository.save(user);
         return userMapper.toDto(user);
     }
 
     public UserDto update(UserDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        user = userRepository.save(user);
-        return userMapper.toDto(user);
+        User existingUser = userMapper.toEntity(userDto);
+
+
+        existingUser.setUsername(userDto.getUsername());
+
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
+
+        if (userDto.getUserStatus() != null) {
+            existingUser.setUserStatus(userDto.getUserStatus());
+        }
+
+
+        userRepository.save(existingUser);
+        return userMapper.toDto(existingUser);
     }
 
     public List<UserDto> allUsers() {
