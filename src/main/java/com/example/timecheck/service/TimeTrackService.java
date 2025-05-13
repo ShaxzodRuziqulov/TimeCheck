@@ -8,9 +8,11 @@ import com.example.timecheck.repository.TimeTrackRepository;
 import com.example.timecheck.repository.TrackSettingsRepository;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.TimeTrackDto;
+import com.example.timecheck.service.dto.TimeTrackUserDto;
 import com.example.timecheck.service.dto.WorkSummaryDto;
 import com.example.timecheck.service.mapper.TimeTrackMapper;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +25,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class TimeTrackService {
     private final TimeTrackMapper timeTrackMapper;
     private final TimeTrackRepository timeTrackRepository;
     private final UserRepository userRepository;
     private final TrackSettingsRepository trackSettingsRepository;
-
-    public TimeTrackService(TimeTrackMapper timeTrackMapper, TimeTrackRepository timeTrackRepository, UserRepository userRepository, TrackSettingsRepository trackSettingsRepository) {
-        this.timeTrackMapper = timeTrackMapper;
-        this.timeTrackRepository = timeTrackRepository;
-        this.userRepository = userRepository;
-        this.trackSettingsRepository = trackSettingsRepository;
-    }
 
     public TimeTrackDto create(TimeTrackDto timeTrackDto) {
         LocalTime now = LocalTime.now();
@@ -165,6 +161,10 @@ public class TimeTrackService {
         }
 
         return summary;
+    }
+
+    public List<TimeTrackUserDto> getAllWithUserDetails() {
+        return timeTrackRepository.getAllWithUserInfo();
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.timecheck.service.mapper;
 
 import com.example.timecheck.entity.TimeTrack;
 import com.example.timecheck.service.dto.TimeTrackDto;
+import com.example.timecheck.service.dto.TimeTrackUserDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,4 +13,5 @@ public interface TimeTrackMapper extends EntityMapper<TimeTrackDto, TimeTrack> {
 
     @Mapping(source = "userId", target = "user.id")
     TimeTrack toEntity(TimeTrackDto timeTrackDto);
+
 }
