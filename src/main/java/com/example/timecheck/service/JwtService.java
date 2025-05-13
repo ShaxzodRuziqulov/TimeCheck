@@ -1,13 +1,12 @@
 package com.example.timecheck.service;
 
-import com.example.timecheck.entity.Role;
-import com.example.timecheck.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -30,17 +29,6 @@ public class JwtService {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-    public String generateTokenWithRoles(User user) {
-        Map<String, Object> claims = new HashMap<>();
-
-        List<String> roles = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-
-        claims.put("roles", roles);  // ko'plik!
-        return buildToken(claims, user, jwtExpiration);
-    }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -48,8 +36,19 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(auth -> auth.getAuthority()) // Masalan: ROLE_ADMIN
+                .collect(Collectors.toList());
+        extraClaims.put("roles", roles);
+        return generateToken(extraClaims, userDetails);
     }
+
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class); // roles claim
+    }
+
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);

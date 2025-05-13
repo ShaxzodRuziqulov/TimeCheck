@@ -7,6 +7,7 @@ public class LoginResponse {
     private String token;
     private long expiresIn;
     private Long userId;
+    private String role;
 
 
     public LoginResponse setToken(String token) {
@@ -21,6 +22,11 @@ public class LoginResponse {
 
     public LoginResponse setUserId(Long userId) {
         this.userId = userId;
+        return this;
+    }
+
+    public LoginResponse setRole(String role) {
+        this.role = role;
         return this;
     }
 

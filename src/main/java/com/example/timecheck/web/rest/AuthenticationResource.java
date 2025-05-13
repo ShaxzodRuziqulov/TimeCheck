@@ -1,5 +1,6 @@
 package com.example.timecheck.web.rest;
 
+import com.example.timecheck.entity.Role;
 import com.example.timecheck.entity.User;
 import com.example.timecheck.responce.LoginResponse;
 import com.example.timecheck.service.AuthenticationService;
@@ -22,6 +23,7 @@ public class AuthenticationResource {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
     }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
         UserDto result = authenticationService.signUp(userDto);
@@ -33,7 +35,16 @@ public class AuthenticationResource {
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.login(loginUserDto);
         String token = jwtService.generateToken(authenticatedUser);
-        LoginResponse loginResponse = new LoginResponse().setToken(token).setExpiresIn(jwtService.getExpirationTime()).setUserId(authenticatedUser.getId());
+
+        String role = authenticatedUser.getRoles()
+                .stream().findFirst().map(Role::getName)
+                .orElse("ROLE_USER");
+
+        LoginResponse loginResponse = new LoginResponse()
+                .setToken(token)
+                .setExpiresIn(jwtService.getExpirationTime())
+                .setUserId(authenticatedUser.getId())
+                .setRole(role);
         return ResponseEntity.ok(loginResponse);
     }
 }

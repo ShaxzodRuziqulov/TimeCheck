@@ -5,7 +5,6 @@ import com.example.timecheck.entity.enumirated.UserStatus;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.UserDto;
 import com.example.timecheck.service.mapper.UserMapper;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

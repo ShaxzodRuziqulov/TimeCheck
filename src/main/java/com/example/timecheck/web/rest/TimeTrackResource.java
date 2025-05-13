@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/time-track")
+@RequestMapping("/api/user/time-track")
 public class TimeTrackResource {
     private final TimeTrackService timeTrackService;
 

@@ -10,12 +10,9 @@ public class TimeTrackDto {
     private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
-
     private Long userId;
-
     private String delayReason;
     private String endReason;
-
     private LocalDateTime createdAt;
 
 }

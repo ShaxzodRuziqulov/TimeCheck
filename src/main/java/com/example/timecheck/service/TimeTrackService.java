@@ -11,7 +11,6 @@ import com.example.timecheck.service.dto.TimeTrackDto;
 import com.example.timecheck.service.dto.WorkSummaryDto;
 import com.example.timecheck.service.mapper.TimeTrackMapper;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class TimeTrackService {
     private final TimeTrackMapper timeTrackMapper;
