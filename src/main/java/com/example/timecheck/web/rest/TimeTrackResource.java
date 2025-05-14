@@ -22,8 +22,14 @@ public class TimeTrackResource {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody TimeTrackDto timeTrackDto) {
-        TimeTrackDto result = timeTrackService.create(timeTrackDto);
+        TimeTrackDto result = timeTrackService.createTimeTrack(timeTrackDto);
         return ResponseEntity.created(URI.create("/api/admin/time-track/create/" + result.getId())).body(result);
+    }
+
+    @PostMapping("/reason")
+    public ResponseEntity<?> createReason(@RequestBody TimeTrackDto timeTrackDto) {
+        TimeTrackDto result = timeTrackService.getWriteReason(timeTrackDto);
+        return ResponseEntity.created(URI.create("/api/admin/time-track/reason/" + result.getId())).body(result);
     }
 
     @PutMapping("/update/{id}")

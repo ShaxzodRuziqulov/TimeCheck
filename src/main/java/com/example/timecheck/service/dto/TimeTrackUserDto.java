@@ -1,7 +1,7 @@
 package com.example.timecheck.service.dto;
 
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 
@@ -18,7 +18,7 @@ public interface TimeTrackUserDto {
 
     String getEndReason();
 
-    LocalDateTime getCreatedAt();
+    LocalDate getDate();
 
     String getFirstName();
 

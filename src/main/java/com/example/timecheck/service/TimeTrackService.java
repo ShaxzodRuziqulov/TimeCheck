@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,17 @@ public class TimeTrackService {
     private final UserRepository userRepository;
     private final TrackSettingsRepository trackSettingsRepository;
 
-    public TimeTrackDto create(TimeTrackDto timeTrackDto) {
+    public TimeTrackDto createTimeTrack(TimeTrackDto timeTrackDto) {
+        if (timeTrackDto.getId() == null) {
+            return startTimeTrack(timeTrackDto);
+        } else {
+            return getWriteReason(timeTrackDto);
+        }
+    }
+
+    public TimeTrackDto startTimeTrack(TimeTrackDto timeTrackDto) {
+
+
         LocalTime now = LocalTime.now();
 
         LocalDate today = LocalDate.now();
@@ -55,6 +64,7 @@ public class TimeTrackService {
         TimeTrack timeTrack = timeTrackMapper.toEntity(timeTrackDto);
         timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found")));
+        timeTrack.setDate(today);
 
         if (now.isBefore(fromTime)) {
             timeTrack.setStartTime(fromTime);
@@ -67,6 +77,14 @@ public class TimeTrackService {
         timeTrackRepository.save(timeTrack);
         return timeTrackMapper.toDto(timeTrack);
 
+    }
+
+    public TimeTrackDto getWriteReason(TimeTrackDto timeTrackDto) {
+        TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
+        result.setDelayReason(timeTrackDto.getDelayReason());
+        result.setDate(timeTrackDto.getDate());
+        timeTrackRepository.save(result);
+        return timeTrackMapper.toDto(result);
     }
 
     public TimeTrackDto completeTimeTrack(Long userId) {
@@ -82,10 +100,10 @@ public class TimeTrackService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void completeUnfinishedTimeTrack() {
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-        LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
+        LocalDate todayStart = LocalDate.from(LocalDate.now().atStartOfDay());
+        LocalDate todayEnd = LocalDate.from(LocalDate.now().atTime(LocalTime.MAX));
 
-        List<TimeTrack> unfinishedTracks = timeTrackRepository.findAllByCreatedAtBetweenAndEndTimeIsNull(todayStart, todayEnd);
+        List<TimeTrack> unfinishedTracks = timeTrackRepository.findAllByDateBetweenAndEndTimeIsNull(todayStart, todayEnd);
 
         if (unfinishedTracks.isEmpty()) {
             return;
@@ -129,11 +147,11 @@ public class TimeTrackService {
     }
 
     public WorkSummaryDto getTodayWorkSummary(Long userId) {
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        LocalDate startOfDay = LocalDate.from(LocalDate.now().atStartOfDay());
+        LocalDate endOfDay = LocalDate.from(LocalDate.now().atTime(LocalTime.MAX));
 
         Optional<TimeTrack> optionalTrack = timeTrackRepository
-                .findFirstByUserIdAndCreatedAtBetweenOrderByStartTimeAsc(userId, startOfDay, endOfDay);
+                .findFirstByUserIdAndDateBetweenOrderByStartTimeAsc(userId, startOfDay, endOfDay);
 
         if (optionalTrack.isEmpty()) {
             throw new RuntimeException("No time track found for user today");

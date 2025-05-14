@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -14,12 +15,12 @@ import java.util.Optional;
 
 @Repository
 public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
-    Optional<TimeTrack> findFirstByUserIdAndCreatedAtBetweenOrderByStartTimeAsc(
-            Long userId, LocalDateTime from, LocalDateTime to);
+    Optional<TimeTrack> findFirstByUserIdAndDateBetweenOrderByStartTimeAsc(
+            Long user_id, LocalDate date, LocalDate date2);
 
     Optional<TimeTrack> findByUserIdAndEndTimeIsNull(Long userId);
 
-    List<TimeTrack> findAllByCreatedAtBetweenAndEndTimeIsNull(LocalDateTime from, LocalDateTime to);
+    List<TimeTrack> findAllByDateBetweenAndEndTimeIsNull(LocalDate from, LocalDate to);
 
     boolean existsByUserIdAndStartTimeBetween(Long user_id, LocalTime startTime, LocalTime startTime2);
 
@@ -29,7 +30,7 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
             "tt.user_id, " +
             "tt.delay_reason, " +
             "tt.end_reason, " +
-            "tt.created_at, " +
+            "tt.date, " +
             "u.first_name, " +
             "u.last_name ," +
             "u.middle_name " +
