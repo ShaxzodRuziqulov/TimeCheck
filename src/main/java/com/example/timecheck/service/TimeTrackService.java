@@ -91,7 +91,10 @@ public class TimeTrackService {
         }
         TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
         result.setDelayReason(timeTrackDto.getDelayReason());
-        result.setDate(timeTrackDto.getDate());
+
+        LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
+
+        result.setDate(dateToSave);
         timeTrackRepository.save(result);
         return timeTrackMapper.toDto(result);
     }
