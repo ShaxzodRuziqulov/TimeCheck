@@ -22,7 +22,7 @@ public class TimeTrackResource {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody TimeTrackDto timeTrackDto) {
-        TimeTrackDto result = timeTrackService.createTimeTrack(timeTrackDto);
+        TimeTrackDto result = timeTrackService.startTimeTrack(timeTrackDto);
         return ResponseEntity.created(URI.create("/api/admin/time-track/create/" + result.getId())).body(result);
     }
 

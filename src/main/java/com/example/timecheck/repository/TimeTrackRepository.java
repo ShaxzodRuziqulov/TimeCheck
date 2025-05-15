@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,7 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
     Optional<TimeTrack> findFirstByUserIdAndDateBetweenOrderByStartTimeAsc(
             Long user_id, LocalDate date, LocalDate date2);
 
-    Optional<TimeTrack> findByUserIdAndEndTimeIsNull(Long userId);
+    Optional<TimeTrack> findByUserIdAndDateAndEndTimeIsNull(Long userId, LocalDate date);
 
     List<TimeTrack> findAllByDateBetweenAndEndTimeIsNull(LocalDate from, LocalDate to);
 
@@ -37,4 +36,8 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
             "FROM time_track tt " +
             "JOIN users u ON tt.user_id = u.id", nativeQuery = true)
     List<TimeTrackUserDto> getAllWithUserInfo();
+
+    Optional<TimeTrack> findByUserIdAndDateAndStartTimeIsNull(Long user_id, LocalDate date);
+
+    boolean existsByUserIdAndDateAndStartTimeIsNotNull(Long user_id, LocalDate date);
 }

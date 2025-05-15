@@ -31,28 +31,16 @@ public class TimeTrackService {
     private final UserRepository userRepository;
     private final TrackSettingsRepository trackSettingsRepository;
 
-    public TimeTrackDto createTimeTrack(TimeTrackDto timeTrackDto) {
-        if (timeTrackDto.getId() == null) {
-            return startTimeTrack(timeTrackDto);
-        } else {
-            return getWriteReason(timeTrackDto);
-        }
-    }
 
     public TimeTrackDto startTimeTrack(TimeTrackDto timeTrackDto) {
-
 
         LocalTime now = LocalTime.now();
 
         LocalDate today = LocalDate.now();
-        LocalTime startOfDay = LocalTime.from(today.atStartOfDay());
-        LocalTime endOfDay = LocalTime.from(today.atTime(LocalTime.MAX));
 
-
-        boolean isExists = timeTrackRepository.existsByUserIdAndStartTimeBetween(timeTrackDto.getUserId(), startOfDay, endOfDay);
-
-        if (isExists) {
-            throw new IllegalStateException("User already has a time track for today");
+        boolean isStarted = timeTrackRepository.existsByUserIdAndDateAndStartTimeIsNotNull(timeTrackDto.getUserId(), today);
+        if (isStarted) {
+            throw new IllegalStateException("User has already started work today");
         }
 
         TrackSettings settings = trackSettingsRepository.findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
@@ -61,10 +49,25 @@ public class TimeTrackService {
         LocalTime fromTime = settings.getFromTime();
         LocalTime toTime = settings.getToTime();
 
-        TimeTrack timeTrack = timeTrackMapper.toEntity(timeTrackDto);
-        timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found")));
-        timeTrack.setDate(today);
+        boolean isExists = timeTrackRepository.existsByUserIdAndStartTimeBetween(
+                timeTrackDto.getUserId(),
+                today.atStartOfDay().toLocalTime(),
+                today.atTime(LocalTime.MAX).toLocalTime()
+        );
+
+        if (isExists) {
+            throw new IllegalStateException("User already has a time track for today");
+        }
+        Optional<TimeTrack> optionalTimeTrack = timeTrackRepository
+                .findByUserIdAndDateAndStartTimeIsNull(timeTrackDto.getUserId(), today);
+        TimeTrack timeTrack;
+        if (optionalTimeTrack.isPresent()) {
+            timeTrack = optionalTimeTrack.get();
+        } else {
+            timeTrack = timeTrackMapper.toEntity(timeTrackDto);
+            timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found")));
+            timeTrack.setDate(today);
+        }
 
         if (now.isBefore(fromTime)) {
             timeTrack.setStartTime(fromTime);
@@ -80,6 +83,12 @@ public class TimeTrackService {
     }
 
     public TimeTrackDto getWriteReason(TimeTrackDto timeTrackDto) {
+        LocalDate today = LocalDate.now();
+
+        boolean isStarted = timeTrackRepository.existsByUserIdAndDateAndStartTimeIsNotNull(timeTrackDto.getUserId(), today);
+        if (isStarted) {
+            throw new IllegalStateException("User has already started work today");
+        }
         TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
         result.setDelayReason(timeTrackDto.getDelayReason());
         result.setDate(timeTrackDto.getDate());
@@ -88,9 +97,15 @@ public class TimeTrackService {
     }
 
     public TimeTrackDto completeTimeTrack(Long userId) {
+        LocalDate today = LocalDate.now();
+
         TimeTrack timeTrack = timeTrackRepository
-                .findByUserIdAndEndTimeIsNull(userId)
+                .findByUserIdAndDateAndEndTimeIsNull(userId, today)
                 .orElseThrow(() -> new EntityNotFoundException("TimeTrack not found"));
+
+        if (timeTrack.getStartTime() == null) {
+            throw new IllegalStateException("Cannot complete work before starting");
+        }
 
         timeTrack.setEndTime(LocalTime.now());
         timeTrackRepository.save(timeTrack);
