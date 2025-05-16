@@ -71,6 +71,10 @@ public class JobService {
                 .collect(Collectors.toList());
     }
 
+    public List<JobDto> getAvailableJobs() {
+        return jobRepository.findUnassignedJobs().stream().map(jobMapper::toDto).collect(Collectors.toList());
+    }
+
     public JobDto findById(Long id) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
@@ -87,4 +91,5 @@ public class JobService {
     public long countByActiveJob() {
         return jobRepository.countByJobStatus(JobStatus.ACTIVE);
     }
+
 }

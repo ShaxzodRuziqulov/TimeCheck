@@ -73,4 +73,11 @@ public class JobResource {
         Long result = jobService.countByActiveJob();
         return ResponseEntity.ok().body(result);
     }
+
+    @GetMapping("/available-jobs")
+    public ResponseEntity<?> getAvailableJobs() {
+        List<JobDto> result = jobService.getAvailableJobs();
+        return ResponseEntity.ok(result);
+    }
+
 }

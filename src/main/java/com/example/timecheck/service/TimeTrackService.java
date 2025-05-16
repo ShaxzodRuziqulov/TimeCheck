@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,8 +34,10 @@ public class TimeTrackService {
 
 
     public TimeTrackDto startTimeTrack(TimeTrackDto timeTrackDto) {
-        LocalTime now = LocalTime.now();
-        LocalDate today = LocalDate.now();
+        ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
+
+        LocalTime now = LocalTime.now(tashkentZone);
+        LocalDate today = LocalDate.now(tashkentZone);
 
         Optional<TimeTrack> optionalTimeTrack = timeTrackRepository
                 .findByUserIdAndDate(timeTrackDto.getUserId(), today);
@@ -76,9 +79,10 @@ public class TimeTrackService {
         return saveStartTime(timeTrack, now, settings);
     }
 
-
     public TimeTrackDto getWriteReason(TimeTrackDto timeTrackDto) {
-        LocalDate today = LocalDate.now();
+        ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
+
+        LocalDate today = LocalDate.now(tashkentZone);
 
         boolean isStarted = timeTrackRepository.existsByUserIdAndDateAndStartTimeIsNotNull(timeTrackDto.getUserId(), today);
         if (isStarted) {
@@ -88,14 +92,15 @@ public class TimeTrackService {
         result.setDelayReason(timeTrackDto.getDelayReason());
 
         LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
-
         result.setDate(dateToSave);
+
         timeTrackRepository.save(result);
         return timeTrackMapper.toDto(result);
     }
 
     public TimeTrackDto completeTimeTrack(Long userId) {
-        LocalDate today = LocalDate.now();
+        ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
+        LocalDate today = LocalDate.now(tashkentZone);
 
         TimeTrack timeTrack = timeTrackRepository
                 .findByUserIdAndDateAndEndTimeIsNull(userId, today)
@@ -105,11 +110,13 @@ public class TimeTrackService {
             throw new IllegalStateException("Cannot complete work before starting");
         }
 
-        timeTrack.setEndTime(LocalTime.now());
+        LocalTime endTime = LocalTime.now(tashkentZone);
+        timeTrack.setEndTime(endTime);
         timeTrackRepository.save(timeTrack);
 
         return timeTrackMapper.toDto(timeTrack);
     }
+
 
     @Scheduled(cron = "0 0 0 * * *")
     public void completeUnfinishedTimeTrack() {
