@@ -40,4 +40,6 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
     Optional<TimeTrack> findByUserIdAndDateAndStartTimeIsNull(Long user_id, LocalDate date);
 
     boolean existsByUserIdAndDateAndStartTimeIsNotNull(Long user_id, LocalDate date);
+
+    Optional<TimeTrack> findByUserIdAndDate(Long userId, LocalDate today);
 }

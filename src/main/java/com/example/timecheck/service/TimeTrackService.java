@@ -33,54 +33,49 @@ public class TimeTrackService {
 
 
     public TimeTrackDto startTimeTrack(TimeTrackDto timeTrackDto) {
-
         LocalTime now = LocalTime.now();
-
         LocalDate today = LocalDate.now();
 
-        boolean isStarted = timeTrackRepository.existsByUserIdAndDateAndStartTimeIsNotNull(timeTrackDto.getUserId(), today);
-        if (isStarted) {
-            throw new IllegalStateException("User has already started work today");
+        Optional<TimeTrack> optionalTimeTrack = timeTrackRepository
+                .findByUserIdAndDate(timeTrackDto.getUserId(), today);
+
+        if (optionalTimeTrack.isPresent()) {
+            TimeTrack existingTrack = optionalTimeTrack.get();
+            if (existingTrack.getStartTime() != null) {
+                throw new IllegalStateException("User has already started work today");
+            }
+            return saveStartTime(existingTrack, now);
         }
 
-        TrackSettings settings = trackSettingsRepository.findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
+        TrackSettings settings = trackSettingsRepository
+                .findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalStateException("No active track settings found"));
 
-        LocalTime fromTime = settings.getFromTime();
-        LocalTime toTime = settings.getToTime();
+        TimeTrack newTrack = timeTrackMapper.toEntity(timeTrackDto);
+        newTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found")));
+        newTrack.setDate(today);
 
-        boolean isExists = timeTrackRepository.existsByUserIdAndStartTimeBetween(
-                timeTrackDto.getUserId(),
-                today.atStartOfDay().toLocalTime(),
-                today.atTime(LocalTime.MAX).toLocalTime()
-        );
-
-        if (isExists) {
-            throw new IllegalStateException("User already has a time track for today");
-        }
-        Optional<TimeTrack> optionalTimeTrack = timeTrackRepository
-                .findByUserIdAndDateAndStartTimeIsNull(timeTrackDto.getUserId(), today);
-        TimeTrack timeTrack;
-        if (optionalTimeTrack.isPresent()) {
-            timeTrack = optionalTimeTrack.get();
-        } else {
-            timeTrack = timeTrackMapper.toEntity(timeTrackDto);
-            timeTrack.setUser(userRepository.findById(timeTrackDto.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found")));
-            timeTrack.setDate(today);
-        }
-
-        if (now.isBefore(fromTime)) {
-            timeTrack.setStartTime(fromTime);
-        } else if (!now.isAfter(toTime)) {
-            timeTrack.setStartTime(now);
-        } else {
-            timeTrack.setStartTime(now);
-        }
-
-        timeTrackRepository.save(timeTrack);
-        return timeTrackMapper.toDto(timeTrack);
-
+        return saveStartTime(newTrack, now, settings);
     }
+
+    private TimeTrackDto saveStartTime(TimeTrack timeTrack, LocalTime now, TrackSettings settings) {
+        LocalTime fromTime = settings.getFromTime();
+
+        timeTrack.setStartTime(now.isBefore(fromTime) ? fromTime : now);
+        timeTrackRepository.save(timeTrack);
+
+        return timeTrackMapper.toDto(timeTrack);
+    }
+
+    private TimeTrackDto saveStartTime(TimeTrack timeTrack, LocalTime now) {
+        TrackSettings settings = trackSettingsRepository
+                .findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalStateException("No active track settings found"));
+
+        return saveStartTime(timeTrack, now, settings);
+    }
+
 
     public TimeTrackDto getWriteReason(TimeTrackDto timeTrackDto) {
         LocalDate today = LocalDate.now();

@@ -17,3 +17,4 @@ security:
   jwt:
     secret-key: "MWIxNzc4NDg0MjMzNDVmZGY4ZjgwZTBkMDU4ZWVjYWNiMTdkZjMwNTJhOTNmNDZiYWVmN2MyOGQyNjQ2MzdiMTc="
     expiration-time: 86400000
+
