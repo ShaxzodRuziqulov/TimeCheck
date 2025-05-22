@@ -61,6 +61,12 @@ public class UserResource {
         return ResponseEntity.ok(result);
     }
 
+    @DeleteMapping("/deleted/{id}")
+    public ResponseEntity<?> deleted(@PathVariable Long id) {
+        userService.deleted(id);
+        return ResponseEntity.ok("deleted");
+    }
+
     @GetMapping("/count")
     public ResponseEntity<?> count() {
         long count = userService.countByActiveUser();

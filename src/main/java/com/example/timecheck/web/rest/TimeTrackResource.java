@@ -1,9 +1,11 @@
 package com.example.timecheck.web.rest;
 
+import com.example.timecheck.entity.TimeTrack;
 import com.example.timecheck.service.TimeTrackService;
 import com.example.timecheck.service.dto.TimeTrackDto;
 import com.example.timecheck.service.dto.TimeTrackUserDto;
 import com.example.timecheck.service.dto.WorkSummaryDto;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,5 +77,22 @@ public class TimeTrackResource {
     public ResponseEntity<?> getUsers() {
         List<TimeTrackUserDto> result = timeTrackService.getAllWithUserDetails();
         return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<TimeTrack>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(timeTrackService.getPaginatedTimeTracks(page, size));
+    }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<Page<TimeTrack>> getByUser(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(timeTrackService.getByUser(userId, page, size));
     }
 }

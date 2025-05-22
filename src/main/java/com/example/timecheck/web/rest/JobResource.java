@@ -68,16 +68,21 @@ public class JobResource {
         return ResponseEntity.ok().body(result);
     }
 
+    @DeleteMapping("/deleted/{id}")
+    public ResponseEntity<?> deletedJob(@PathVariable Long id) {
+        jobService.deleted(id);
+        return ResponseEntity.ok().body("deleted");
+    }
+
     @GetMapping("/count")
     public ResponseEntity<?> count() {
         Long result = jobService.countByActiveJob();
         return ResponseEntity.ok().body(result);
     }
 
-    @GetMapping("/available-jobs")
-    public ResponseEntity<?> getAvailableJobs() {
-        List<JobDto> result = jobService.getAvailableJobs();
-        return ResponseEntity.ok(result);
+    @GetMapping("/free")
+    public ResponseEntity<?> free() {
+        List<Job> result = jobService.getFreeJobs();
+        return ResponseEntity.ok().body(result);
     }
-
 }

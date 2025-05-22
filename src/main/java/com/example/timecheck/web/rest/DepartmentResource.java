@@ -58,6 +58,12 @@ public class DepartmentResource {
         return ResponseEntity.ok().body(result);
     }
 
+    @DeleteMapping("/deleted/{id}")
+    public ResponseEntity<?> deletedDepartment(@PathVariable Long id) {
+        departmentService.deleted(id);
+        return ResponseEntity.ok().body("deleted");
+    }
+
     @GetMapping("/count")
     public ResponseEntity<?> count() {
         Long result = departmentService.countByActiveDepartment();

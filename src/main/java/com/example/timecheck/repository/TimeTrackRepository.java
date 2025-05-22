@@ -2,6 +2,8 @@ package com.example.timecheck.repository;
 
 import com.example.timecheck.entity.TimeTrack;
 import com.example.timecheck.service.dto.TimeTrackUserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +23,6 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
 
     List<TimeTrack> findAllByDateBetweenAndEndTimeIsNull(LocalDate from, LocalDate to);
 
-    boolean existsByUserIdAndStartTimeBetween(Long user_id, LocalTime startTime, LocalTime startTime2);
 
     @Query(value = "SELECT tt.id, " +
             "tt.start_time, " +
@@ -37,9 +38,10 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long> {
             "JOIN users u ON tt.user_id = u.id", nativeQuery = true)
     List<TimeTrackUserDto> getAllWithUserInfo();
 
-    Optional<TimeTrack> findByUserIdAndDateAndStartTimeIsNull(Long user_id, LocalDate date);
-
-    boolean existsByUserIdAndDateAndStartTimeIsNotNull(Long user_id, LocalDate date);
+    boolean existsByUserIdAndDate(Long user_id, LocalDate date);
 
     Optional<TimeTrack> findByUserIdAndDate(Long userId, LocalDate today);
+
+    Page<TimeTrack> findAllByUserId(Long user, Pageable pageable);
+
 }

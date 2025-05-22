@@ -13,6 +13,10 @@ import com.example.timecheck.service.dto.WorkSummaryDto;
 import com.example.timecheck.service.mapper.TimeTrackMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -84,14 +88,11 @@ public class TimeTrackService {
 
         LocalDate today = LocalDate.now(tashkentZone);
 
-        boolean isStarted = timeTrackRepository.existsByUserIdAndDateAndStartTimeIsNotNull(timeTrackDto.getUserId(), today);
-        if (isStarted) {
-            throw new IllegalStateException("User has already started work today");
-        }
+        LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
+
         TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
         result.setDelayReason(timeTrackDto.getDelayReason());
 
-        LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
         result.setDate(dateToSave);
 
         timeTrackRepository.save(result);
@@ -205,4 +206,13 @@ public class TimeTrackService {
         return timeTrackRepository.getAllWithUserInfo();
     }
 
+    public Page<TimeTrack> getPaginatedTimeTracks(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        return timeTrackRepository.findAll(pageable);
+    }
+
+    public Page<TimeTrack> getByUser(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        return timeTrackRepository.findAllByUserId(userId, pageable);
+    }
 }

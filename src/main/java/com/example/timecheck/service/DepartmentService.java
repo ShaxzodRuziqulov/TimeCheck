@@ -65,6 +65,11 @@ public class DepartmentService {
         return departmentRepository.save(department);
     }
 
+    public void deleted(Long id) {
+        Department department = departmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Department not found"));
+        departmentRepository.delete(department);
+    }
+
     public List<DepartmentDto> findByActiveDepartment() {
         return departmentRepository.findByStatus(DepartmentStatus.ACTIVE)
                 .stream().map(departmentMapper::toDto).collect(Collectors.toList());

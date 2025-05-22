@@ -58,4 +58,10 @@ public class TrackSettingsResource {
         TrackSettingsDto result = trackSettingService.delete(id);
         return ResponseEntity.ok().body(result);
     }
+
+    @DeleteMapping("/deleted/{id}")
+    public ResponseEntity<?> deletedTrackSettings(@PathVariable Long id) {
+        trackSettingService.deleted(id);
+        return ResponseEntity.ok().body("deleted");
+    }
 }

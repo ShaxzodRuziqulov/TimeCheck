@@ -64,4 +64,9 @@ public class TrackSettingService {
         trackSettingsRepository.save(trackSettings);
         return trackSettingsMapper.toDto(trackSettings);
     }
+
+    public void deleted(Long id) {
+        TrackSettings trackSettings = trackSettingsRepository.findById(id).orElseThrow(() -> new RuntimeException("TrackSettings not found"));
+        trackSettingsRepository.delete(trackSettings);
+    }
 }

@@ -19,7 +19,12 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     @Query("select count(j) from Job j where j.jobStatus =:jobStatus")
     long countByJobStatus(@Param("jobStatus") JobStatus jobStatus);
 
-    @Query("SELECT j FROM Job j WHERE j.id NOT IN (SELECT u.job.id FROM User u WHERE u.job IS NOT NULL)")
-    List<Job> findUnassignedJobs();
+    //    @Query("select j from Job j where j.id NOT IN (SELECT u.job.id from User u where u.job is not null )")
+    @Query("""
+                SELECT j FROM Job j
+                LEFT JOIN User u ON u.job = j
+                WHERE u.id IS NULL and j.jobStatus =:jobStatus
+            """)
+    List<Job> findAllUnassignedJobs(JobStatus jobStatus);
 
 }

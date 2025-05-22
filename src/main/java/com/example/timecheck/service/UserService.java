@@ -79,9 +79,17 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (user.getJob() != null) {
+            user.setJob(null);
+        }
         user.setUserStatus(UserStatus.DELETED);
 
         return userRepository.save(user);
+    }
+
+    public void deleted(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.delete(user);
     }
 
     public long countByActiveUser() {
