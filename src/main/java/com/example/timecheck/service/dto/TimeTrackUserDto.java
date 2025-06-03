@@ -25,5 +25,9 @@ public interface TimeTrackUserDto {
     String getLastName();
 
     String getMiddleName();
+
+    String getBirthDate();
+    String getPassword();
+    String getUserName();
 }
 

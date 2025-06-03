@@ -30,7 +30,10 @@ public interface TimeTrackRepository extends JpaRepository<TimeTrack, Long>, Jpa
             "tt.date, " +
             "u.first_name, " +
             "u.last_name, " +
-            "u.middle_name " +
+            "u.middle_name," +
+            "u.birth_date," +
+            "u.user_name," +
+            "u.password " +
             "FROM time_track tt " +
             "JOIN users u ON tt.user_id = u.id " +
             "WHERE tt.user_id = :userId", nativeQuery = true)
