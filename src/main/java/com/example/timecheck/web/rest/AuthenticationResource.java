@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationResource {
@@ -36,15 +38,18 @@ public class AuthenticationResource {
         User authenticatedUser = authenticationService.login(loginUserDto);
         String token = jwtService.generateToken(authenticatedUser);
 
-        String role = authenticatedUser.getRoles()
-                .stream().findFirst().map(Role::getName)
-                .orElse("ROLE_USER");
-
+        List<String> roles = authenticatedUser.getRoles()
+                .stream()
+                .map(Role::getName)
+                .toList();
         LoginResponse loginResponse = new LoginResponse()
+                .setFirstName(authenticatedUser.getFirstName())
+                .setLastName(authenticatedUser.getLastName())
+                .setMiddleName(authenticatedUser.getMiddleName())
                 .setToken(token)
                 .setExpiresIn(jwtService.getExpirationTime())
                 .setUserId(authenticatedUser.getId())
-                .setRole(role);
+                .setRole(roles);
         return ResponseEntity.ok(loginResponse);
     }
 }

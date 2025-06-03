@@ -2,13 +2,27 @@ package com.example.timecheck.responce;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class LoginResponse {
+    private String firstName;
+    private String lastName;
+    private String middleName;
     private String token;
     private long expiresIn;
     private Long userId;
-    private String role;
+    private List<String> roles;
 
+    public LoginResponse setLastName(String lastName) {
+        this.lastName = lastName;
+        return this;
+    }
+
+    public LoginResponse setFirstName(String firstName) {
+        this.firstName = firstName;
+        return this;
+    }
 
     public LoginResponse setToken(String token) {
         this.token = token;
@@ -25,17 +39,25 @@ public class LoginResponse {
         return this;
     }
 
-    public LoginResponse setRole(String role) {
-        this.role = role;
+    public LoginResponse setRole(List<String> roles) {
+        this.roles = roles;
+        return this;
+    }
+
+    public LoginResponse setMiddleName(String middleName) {
+        this.middleName = middleName;
         return this;
     }
 
     @Override
     public String toString() {
         return "LoginResponse{" +
-                "token='" + token + '\'' +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", token='" + token + '\'' +
                 ", expiresIn=" + expiresIn +
                 ", userId=" + userId +
+                ", roles='" + roles + '\'' +
                 '}';
     }
 }

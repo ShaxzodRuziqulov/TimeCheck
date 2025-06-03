@@ -7,6 +7,8 @@ import com.example.timecheck.entity.enumirated.TrackSettingsStatus;
 import com.example.timecheck.repository.TimeTrackRepository;
 import com.example.timecheck.repository.TrackSettingsRepository;
 import com.example.timecheck.repository.UserRepository;
+import com.example.timecheck.responce.TimeTrackFilterRequest;
+import com.example.timecheck.responce.TimeTrackSpecification;
 import com.example.timecheck.service.dto.TimeTrackDto;
 import com.example.timecheck.service.dto.TimeTrackUserDto;
 import com.example.timecheck.service.dto.WorkSummaryDto;
@@ -17,7 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -36,75 +42,89 @@ public class TimeTrackService {
     private final UserRepository userRepository;
     private final TrackSettingsRepository trackSettingsRepository;
 
-
-    public TimeTrackDto startTimeTrack(TimeTrackDto timeTrackDto) {
-        ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
-
-        LocalTime now = LocalTime.now(tashkentZone);
-        LocalDate today = LocalDate.now(tashkentZone);
-
-        Optional<TimeTrack> optionalTimeTrack = timeTrackRepository
-                .findByUserIdAndDate(timeTrackDto.getUserId(), today);
-
-        if (optionalTimeTrack.isPresent()) {
-            TimeTrack existingTrack = optionalTimeTrack.get();
-            if (existingTrack.getStartTime() != null) {
-                throw new IllegalStateException("User has already started work today");
-            }
-            return saveStartTime(existingTrack, now);
+    public Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Foydalanuvchi aniqlanmadi");
         }
 
-        TrackSettings settings = trackSettingsRepository
-                .findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalStateException("No active track settings found"));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
-        TimeTrack newTrack = timeTrackMapper.toEntity(timeTrackDto);
-        newTrack.setUser(userRepository.findById(timeTrackDto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found")));
-        newTrack.setDate(today);
-
-        return saveStartTime(newTrack, now, settings);
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"))
+                .getId();
     }
 
-    private TimeTrackDto saveStartTime(TimeTrack timeTrack, LocalTime now, TrackSettings settings) {
-        LocalTime fromTime = settings.getFromTime();
 
-        timeTrack.setStartTime(now.isBefore(fromTime) ? fromTime : now);
-        timeTrackRepository.save(timeTrack);
+    public TimeTrackDto startTimeTrack() {
+        ZoneId zone = ZoneId.of("Asia/Tashkent");
+        LocalDate today = LocalDate.now(zone);
+        LocalTime now = LocalTime.now(zone);
+        Long currentUserId = getCurrentUserId();
 
-        return timeTrackMapper.toDto(timeTrack);
+        TimeTrack track = timeTrackRepository.findByUserIdAndDate(currentUserId, today)
+                .orElseGet(() -> createNewTrack(currentUserId, today));
+
+        if (track.getStartTime() != null) {
+            throw new IllegalStateException("Siz bugun ishni allaqachon boshlagansiz.");
+        }
+
+        TrackSettings settings = getActiveSettings();
+        track.setStartTime(now.isBefore(settings.getFromTime()) ? settings.getFromTime() : now);
+
+        return timeTrackMapper.toDto(timeTrackRepository.save(track));
     }
 
-    private TimeTrackDto saveStartTime(TimeTrack timeTrack, LocalTime now) {
-        TrackSettings settings = trackSettingsRepository
-                .findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
-                .orElseThrow(() -> new IllegalStateException("No active track settings found"));
+    public Page<TimeTrack> getPaginatedFilteredTimeTracks(TimeTrackFilterRequest filterDto, Pageable pageable) {
+        Specification<TimeTrack> spec = Specification
+                .where(TimeTrackSpecification.hasDepartmentId(filterDto.getDepartmentId()))
+                .and(TimeTrackSpecification.dateBetween(filterDto.getFromDate(), filterDto.getToDate()));
 
-        return saveStartTime(timeTrack, now, settings);
+        return timeTrackRepository.findAll(spec, pageable);
+    }
+
+    private TimeTrack createNewTrack(Long userId, LocalDate date) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Foydalanuvchi topilmadi"));
+
+        TimeTrack newTrack = new TimeTrack();
+        newTrack.setUser(user);
+        newTrack.setDate(date);
+        return newTrack;
+    }
+
+    private TrackSettings getActiveSettings() {
+        return trackSettingsRepository.findByTrackSettingsStatus(TrackSettingsStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalStateException("Faol ish sozlamalari topilmadi"));
     }
 
     public TimeTrackDto getWriteReason(TimeTrackDto timeTrackDto) {
         ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
-
         LocalDate today = LocalDate.now(tashkentZone);
 
         LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
+        Long userId = timeTrackDto.getUserId();
+
+        boolean alreadyExists = timeTrackRepository.existsByUserIdAndDate(userId, dateToSave);
+
+        if (alreadyExists) {
+            throw new IllegalStateException("Bugungi kun uchun yozuv allaqachon mavjud!");
+        }
 
         TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
         result.setDelayReason(timeTrackDto.getDelayReason());
-
         result.setDate(dateToSave);
 
         timeTrackRepository.save(result);
         return timeTrackMapper.toDto(result);
     }
 
-    public TimeTrackDto completeTimeTrack(Long userId) {
+    public TimeTrackDto completeTimeTrack() {
         ZoneId tashkentZone = ZoneId.of("Asia/Tashkent");
         LocalDate today = LocalDate.now(tashkentZone);
 
         TimeTrack timeTrack = timeTrackRepository
-                .findByUserIdAndDateAndEndTimeIsNull(userId, today)
+                .findByUserIdAndDateAndEndTimeIsNull(this.getCurrentUserId(), today)
                 .orElseThrow(() -> new EntityNotFoundException("TimeTrack not found"));
 
         if (timeTrack.getStartTime() == null) {
@@ -116,24 +136,6 @@ public class TimeTrackService {
         timeTrackRepository.save(timeTrack);
 
         return timeTrackMapper.toDto(timeTrack);
-    }
-
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void completeUnfinishedTimeTrack() {
-        LocalDate todayStart = LocalDate.from(LocalDate.now().atStartOfDay());
-        LocalDate todayEnd = LocalDate.from(LocalDate.now().atTime(LocalTime.MAX));
-
-        List<TimeTrack> unfinishedTracks = timeTrackRepository.findAllByDateBetweenAndEndTimeIsNull(todayStart, todayEnd);
-
-        if (unfinishedTracks.isEmpty()) {
-            return;
-        }
-        for (TimeTrack track : unfinishedTracks) {
-            track.setEndTime(LocalTime.now());
-            track.setEndReason("Tugatish tugmasi bosilmagan");
-        }
-        timeTrackRepository.saveAll(unfinishedTracks);
     }
 
     public TimeTrackDto update(TimeTrackDto timeTrackDto) {
@@ -203,16 +205,12 @@ public class TimeTrackService {
     }
 
     public List<TimeTrackUserDto> getAllWithUserDetails() {
-        return timeTrackRepository.getAllWithUserInfo();
+        Long userId = getCurrentUserId();
+        return timeTrackRepository.getAllWithUserInfoByUserId(userId);
     }
 
     public Page<TimeTrack> getPaginatedTimeTracks(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
         return timeTrackRepository.findAll(pageable);
-    }
-
-    public Page<TimeTrack> getByUser(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
-        return timeTrackRepository.findAllByUserId(userId, pageable);
     }
 }

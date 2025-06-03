@@ -5,6 +5,7 @@ import com.example.timecheck.entity.Job;
 import com.example.timecheck.entity.enumirated.JobStatus;
 import com.example.timecheck.repository.DepartmentRepository;
 import com.example.timecheck.repository.JobRepository;
+import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.JobDto;
 import com.example.timecheck.service.mapper.JobMapper;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,13 @@ public class JobService {
     private final JobRepository jobRepository;
     private final DepartmentRepository departmentRepository;
     private final JobMapper jobMapper;
+    private final UserRepository userRepository;
 
-    public JobService(JobRepository jobRepository, DepartmentRepository departmentRepository, JobMapper jobMapper) {
+    public JobService(JobRepository jobRepository, DepartmentRepository departmentRepository, JobMapper jobMapper, UserRepository userRepository) {
         this.jobRepository = jobRepository;
         this.departmentRepository = departmentRepository;
         this.jobMapper = jobMapper;
+        this.userRepository = userRepository;
     }
 
     public JobDto create(JobDto jobDto) {
@@ -96,4 +99,12 @@ public class JobService {
     public List<Job> getFreeJobs() {
         return jobRepository.findAllUnassignedJobs(JobStatus.ACTIVE);
     }
+
+    public List<Job> getFreeOrAssignedToUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found");
+        }
+        return jobRepository.findFreeOrAssignedToUser(userId, JobStatus.ACTIVE);
+    }
+
 }

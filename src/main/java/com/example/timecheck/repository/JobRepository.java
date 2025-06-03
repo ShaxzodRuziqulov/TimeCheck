@@ -1,8 +1,6 @@
 package com.example.timecheck.repository;
 
-import com.example.timecheck.entity.Department;
 import com.example.timecheck.entity.Job;
-import com.example.timecheck.entity.enumirated.DepartmentStatus;
 import com.example.timecheck.entity.enumirated.JobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,12 +17,23 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     @Query("select count(j) from Job j where j.jobStatus =:jobStatus")
     long countByJobStatus(@Param("jobStatus") JobStatus jobStatus);
 
-    //    @Query("select j from Job j where j.id NOT IN (SELECT u.job.id from User u where u.job is not null )")
     @Query("""
                 SELECT j FROM Job j
                 LEFT JOIN User u ON u.job = j
                 WHERE u.id IS NULL and j.jobStatus =:jobStatus
             """)
     List<Job> findAllUnassignedJobs(JobStatus jobStatus);
+
+    @Query(""" 
+            SELECT j FROM Job j
+            WHERE (
+            j.id NOT IN (
+                SELECT u.job.id FROM User u WHERE u.job IS NOT NULL AND u.id <> :userId
+            )
+            OR j.id IN (
+                SELECT u.job.id FROM User u WHERE u.id = :userId))
+                AND j.jobStatus = :jobStatus""")
+    List<Job> findFreeOrAssignedToUser(@Param("userId") Long userId, @Param("jobStatus") JobStatus jobStatus);
+
 
 }

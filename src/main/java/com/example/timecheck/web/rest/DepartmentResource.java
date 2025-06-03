@@ -26,7 +26,7 @@ public class DepartmentResource {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDto departmentDto) throws URISyntaxException {
+    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDto departmentDto) {
         if (!departmentDto.getId().equals(id) && departmentDto.getId() != 0) {
             return ResponseEntity.badRequest().body("Invalid id");
         }

@@ -29,7 +29,7 @@ public class JobResource {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateJob(@PathVariable Long id, @RequestBody JobDto jobDto) throws URISyntaxException {
+    public ResponseEntity<?> updateJob(@PathVariable Long id, @RequestBody JobDto jobDto) {
         if (!jobDto.getId().equals(id) && jobDto.getId() != 0) {
             return ResponseEntity.badRequest().body("invalid id");
         }
@@ -68,11 +68,11 @@ public class JobResource {
         return ResponseEntity.ok().body(result);
     }
 
-    @DeleteMapping("/deleted/{id}")
-    public ResponseEntity<?> deletedJob(@PathVariable Long id) {
-        jobService.deleted(id);
-        return ResponseEntity.ok().body("deleted");
-    }
+//    @DeleteMapping("/deleted/{id}")
+//    public ResponseEntity<?> deletedJob(@PathVariable Long id) {
+//        jobService.deleted(id);
+//        return ResponseEntity.ok().body("deleted");
+//    }
 
     @GetMapping("/count")
     public ResponseEntity<?> count() {
@@ -83,6 +83,12 @@ public class JobResource {
     @GetMapping("/free")
     public ResponseEntity<?> free() {
         List<Job> result = jobService.getFreeJobs();
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/free/{id}")
+    public ResponseEntity<?> freeOrAssignedToUser(@PathVariable Long id) {
+        List<Job> result = jobService.getFreeOrAssignedToUser(id);
         return ResponseEntity.ok().body(result);
     }
 }

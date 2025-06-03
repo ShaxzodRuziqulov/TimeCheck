@@ -4,8 +4,7 @@ import com.example.timecheck.entity.Role;
 import com.example.timecheck.entity.User;
 import com.example.timecheck.service.dto.RoleDTO;
 import com.example.timecheck.service.dto.UserDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,4 +37,6 @@ public interface UserMapper extends EntityMapper<UserDto, User> {
                 })
                 .collect(Collectors.toSet());
     }
-}
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdate(@MappingTarget User entity, UserDto dto);}
