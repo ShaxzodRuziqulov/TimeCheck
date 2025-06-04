@@ -36,8 +36,7 @@ public class UserService {
     }
 
     public UserDto update(UserDto userDto) {
-        User existingUser = userRepository.findById(userDto.getId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userDto.getId()));
+        User existingUser = findUserId(userDto.getId());
 
         if (userDto.getPassword() != null && userDto.getPassword().trim().isEmpty()) {
             userDto.setPassword(null);
@@ -47,7 +46,7 @@ public class UserService {
         if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
-        existingUser.setJob(jobRepository.findById(userDto.getJobId()).orElseThrow(() -> new RuntimeException("Job not found with id: " + userDto.getJobId())));
+        existingUser.setJob(jobRepository.findById(existingUser.getJob().getId()).orElseThrow(() -> new RuntimeException("Job not found with id: " + existingUser.getJob().getId())));
 
         User updatedUser = userRepository.save(existingUser);
 
@@ -75,7 +74,7 @@ public class UserService {
     public User findUserId(Long id) {
         return userRepository
                 .findById(id)
-                .orElseGet(User::new);
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     public User deleteUser(Long id) {
@@ -103,4 +102,14 @@ public class UserService {
         return userRepository.countByUserStatus(UserStatus.ACTIVE);
     }
 
+    public User updatePassword(Long userId, String oldPassword, String newPassword) {
+        User user = findUserId(userId);
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Old password does not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return userRepository.save(user);
+    }
 }
