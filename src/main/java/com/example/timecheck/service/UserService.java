@@ -2,7 +2,6 @@ package com.example.timecheck.service;
 
 import com.example.timecheck.entity.User;
 import com.example.timecheck.entity.enumirated.UserStatus;
-import com.example.timecheck.repository.JobRepository;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.UserDto;
 import com.example.timecheck.service.mapper.UserMapper;
