@@ -6,7 +6,6 @@ import com.example.timecheck.entity.User;
 import com.example.timecheck.entity.enumirated.TrackSettingsStatus;
 import com.example.timecheck.repository.TimeTrackRepository;
 import com.example.timecheck.repository.TrackSettingsRepository;
-import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.responce.TimeTrackFilterRequest;
 import com.example.timecheck.responce.TimeTrackSpecification;
 import com.example.timecheck.service.dto.TimeTrackDto;
@@ -20,10 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -39,28 +35,14 @@ import java.util.stream.Collectors;
 public class TimeTrackService {
     private final TimeTrackMapper timeTrackMapper;
     private final TimeTrackRepository timeTrackRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final TrackSettingsRepository trackSettingsRepository;
-
-    public Long getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new AccessDeniedException("Foydalanuvchi aniqlanmadi");
-        }
-
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-
-        return userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"))
-                .getId();
-    }
-
 
     public TimeTrackDto startTimeTrack() {
         ZoneId zone = ZoneId.of("Asia/Tashkent");
         LocalDate today = LocalDate.now(zone);
         LocalTime now = LocalTime.now(zone);
-        Long currentUserId = getCurrentUserId();
+        Long currentUserId = userService.getCurrentUserId();
 
         TimeTrack track = timeTrackRepository.findByUserIdAndDate(currentUserId, today)
                 .orElseGet(() -> createNewTrack(currentUserId, today));
@@ -84,12 +66,12 @@ public class TimeTrackService {
     }
 
     private TimeTrack createNewTrack(Long userId, LocalDate date) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Foydalanuvchi topilmadi"));
+        User user = userService.findUserId(userId);
 
         TimeTrack newTrack = new TimeTrack();
         newTrack.setUser(user);
         newTrack.setDate(date);
+
         return newTrack;
     }
 
@@ -103,7 +85,10 @@ public class TimeTrackService {
         LocalDate today = LocalDate.now(tashkentZone);
 
         LocalDate dateToSave = timeTrackDto.getDate() != null ? timeTrackDto.getDate() : today;
-        Long userId = timeTrackDto.getUserId();
+
+        Long userId = timeTrackDto.getUserId() != null
+                ? timeTrackDto.getUserId()
+                : userService.getCurrentUserId();
 
         boolean alreadyExists = timeTrackRepository.existsByUserIdAndDate(userId, dateToSave);
 
@@ -124,7 +109,7 @@ public class TimeTrackService {
         LocalDate today = LocalDate.now(tashkentZone);
 
         TimeTrack timeTrack = timeTrackRepository
-                .findByUserIdAndDateAndEndTimeIsNull(this.getCurrentUserId(), today)
+                .findByUserIdAndDateAndEndTimeIsNull(userService.getCurrentUserId(), today)
                 .orElseThrow(() -> new EntityNotFoundException("TimeTrack not found"));
 
         if (timeTrack.getStartTime() == null) {
@@ -142,8 +127,7 @@ public class TimeTrackService {
         TimeTrack result = timeTrackMapper.toEntity(timeTrackDto);
 
         if (timeTrackDto.getUserId() != null) {
-            User user = userRepository.findById(timeTrackDto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userService.findUserId(timeTrackDto.getUserId());
             result.setUser(user);
         }
         timeTrackRepository.save(result);
@@ -205,7 +189,7 @@ public class TimeTrackService {
     }
 
     public List<TimeTrackUserDto> getAllWithUserDetails() {
-        Long userId = getCurrentUserId();
+        Long userId = userService.getCurrentUserId();
         return timeTrackRepository.getAllWithUserInfoByUserId(userId);
     }
 

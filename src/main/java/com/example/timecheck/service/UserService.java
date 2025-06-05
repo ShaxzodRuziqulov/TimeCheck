@@ -6,6 +6,11 @@ import com.example.timecheck.repository.JobRepository;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.UserDto;
 import com.example.timecheck.service.mapper.UserMapper;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +22,24 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JobRepository jobRepository;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder passwordEncoder, JobRepository jobRepository) {
+    public Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Foydalanuvchi aniqlanmadi");
+        }
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"))
+                .getId();
+    }
+
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
-        this.jobRepository = jobRepository;
     }
 
     public UserDto createUser(UserDto userDto) {
@@ -46,7 +62,6 @@ public class UserService {
         if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
-        existingUser.setJob(jobRepository.findById(existingUser.getJob().getId()).orElseThrow(() -> new RuntimeException("Job not found with id: " + existingUser.getJob().getId())));
 
         User updatedUser = userRepository.save(existingUser);
 
