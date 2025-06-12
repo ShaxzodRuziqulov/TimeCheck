@@ -8,6 +8,8 @@ public enum PositionStatus {
     FRONTEND("FRONTEND"),
     TEAM_LEAD("TEAM_LEAD"),
     PROJECT_MANAGER("PROJECT_MANAGER"),
+    OFFICE_MANAGER("OFFICE_MANAGER"),
+    INTERN("INTERN"),
     ;
 
     private final String label;
@@ -15,5 +17,4 @@ public enum PositionStatus {
     PositionStatus(String label) {
         this.label = label;
     }
-
 }

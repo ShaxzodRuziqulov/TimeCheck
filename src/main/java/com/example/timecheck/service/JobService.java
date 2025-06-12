@@ -2,9 +2,11 @@ package com.example.timecheck.service;
 
 import com.example.timecheck.entity.Department;
 import com.example.timecheck.entity.Job;
+import com.example.timecheck.entity.Position;
 import com.example.timecheck.entity.enumirated.JobStatus;
 import com.example.timecheck.repository.DepartmentRepository;
 import com.example.timecheck.repository.JobRepository;
+import com.example.timecheck.repository.PositionRepository;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.JobDto;
 import com.example.timecheck.service.mapper.JobMapper;
@@ -19,19 +21,24 @@ public class JobService {
     private final DepartmentRepository departmentRepository;
     private final JobMapper jobMapper;
     private final UserRepository userRepository;
+    private final PositionRepository positionRepository;
 
-    public JobService(JobRepository jobRepository, DepartmentRepository departmentRepository, JobMapper jobMapper, UserRepository userRepository) {
+    public JobService(JobRepository jobRepository, DepartmentRepository departmentRepository, JobMapper jobMapper, UserRepository userRepository, PositionRepository positionRepository) {
         this.jobRepository = jobRepository;
         this.departmentRepository = departmentRepository;
         this.jobMapper = jobMapper;
         this.userRepository = userRepository;
+        this.positionRepository = positionRepository;
     }
 
     public JobDto create(JobDto jobDto) {
         Job job = jobMapper.toEntity(jobDto);
 
         job.setJobStatus(JobStatus.ACTIVE);
+        Position position = positionRepository.findById(jobDto.getPositionId())
+                .orElseThrow(() -> new RuntimeException("Position not found"));
 
+        job.setPosition(position);
         if (jobDto.getDepartmentId() != null) {
             Department department = departmentRepository.findById(jobDto.getDepartmentId())
                     .orElseThrow(() -> new RuntimeException("Department not found"));
@@ -47,13 +54,17 @@ public class JobService {
         Job job = jobRepository.findById(jobDto.getId())
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        job.setPositionStatus(jobDto.getPositionStatus());
         job.setJobStatus(jobDto.getJobStatus());
 
         if (jobDto.getDepartmentId() != null) {
             Department department = new Department();
             department.setId(jobDto.getDepartmentId());
             job.setDepartment(department);
+        }
+        if (jobDto.getPositionId() != null) {
+            Position position = new Position();
+            position.setId(jobDto.getPositionId());
+            job.setPosition(position);
         }
 
         job = jobRepository.save(job);

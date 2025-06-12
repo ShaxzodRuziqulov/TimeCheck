@@ -1,7 +1,9 @@
 package com.example.timecheck.service;
 
+import com.example.timecheck.entity.Job;
 import com.example.timecheck.entity.User;
 import com.example.timecheck.entity.enumirated.UserStatus;
+import com.example.timecheck.repository.JobRepository;
 import com.example.timecheck.repository.UserRepository;
 import com.example.timecheck.service.dto.UserDto;
 import com.example.timecheck.service.mapper.UserMapper;
@@ -21,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+    private  final JobRepository jobRepository;
 
     public Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -35,10 +38,11 @@ public class UserService {
                 .getId();
     }
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder passwordEncoder, JobRepository jobRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.jobRepository = jobRepository;
     }
 
     public UserDto createUser(UserDto userDto) {
@@ -61,7 +65,11 @@ public class UserService {
         if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
-
+        if (userDto.getJobId() != null) {
+            Job job = jobRepository.findById(userDto.getJobId())
+                    .orElseThrow(() -> new RuntimeException("Job not found with id: " + userDto.getJobId()));
+            existingUser.setJob(job);
+        }
         User updatedUser = userRepository.save(existingUser);
 
         return userMapper.toDto(updatedUser);
