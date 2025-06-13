@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+<!-- 1. Create Department table -->
+<changeSet id="1749798096714-1" author="Shaxzod">
+    <createTable tableName="department">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="varchar(250)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="department_status" type="varchar(250)"/>
+        <column name="created_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updated_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+</changeSet>
+
+<!-- 2. Create Position table -->
+<changeSet id="1749807980218-1" author="Shaxzod">
+    <createTable tableName="position">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="varchar(255)">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+</changeSet>
+
+<!-- 3. Create Job table -->
+<changeSet id="1749798364290-1" author="Shaxzod">
+    <createTable tableName="job">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="position_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+        <column name="department_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+        <column name="job_status" type="varchar(255)"/>
+        <column name="created_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updated_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="job"
+                             baseColumnNames="department_id"
+                             constraintName="fk_job_department"
+                             referencedTableName="department"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             onUpdate="CASCADE"/>
+
+    <addForeignKeyConstraint baseTableName="job"
+                             baseColumnNames="position_id"
+                             constraintName="fk_job_position"
+                             referencedTableName="position"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             onUpdate="CASCADE"/>
+</changeSet>
+
+<!-- 4. Create Roles table -->
+<changeSet id="1749811480255-1" author="Shaxzod">
+    <createTable tableName="roles">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="varchar(50)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="description" type="varchar(255)"/>
+        <column name="created_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updated_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+</changeSet>
+
+<!-- 5. Create Users table -->
+<changeSet id="1749810211062-1" author="Shaxzod">
+    <createTable tableName="users">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="created_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updated_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="birth_date" type="date"/>
+        <column name="first_name" type="varchar(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="last_name" type="varchar(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="middle_name" type="varchar(255)"/>
+        <column name="password" type="varchar(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="user_status" type="varchar(255)"/>
+        <column name="user_name" type="varchar(255)">
+            <constraints nullable="false" unique="true"/>
+        </column>
+        <column name="job_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+            baseTableName="users"
+            baseColumnNames="job_id"
+            constraintName="fk_users_job"
+            referencedTableName="job"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+</changeSet>
+
+<!-- 6. Create User Roles junction table -->
+<changeSet id="1749811638263-1" author="Shaxzod">
+    <createTable tableName="user_roles">
+        <column name="user_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+        <column name="role_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+    <!-- Add composite primary key -->
+    <addPrimaryKey tableName="user_roles" columnNames="user_id,role_id"/>
+
+    <!-- Add foreign keys -->
+    <addForeignKeyConstraint
+            baseTableName="user_roles"
+            baseColumnNames="user_id"
+            constraintName="fk_user_roles_user"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+
+    <addForeignKeyConstraint
+            baseTableName="user_roles"
+            baseColumnNames="role_id"
+            constraintName="fk_user_roles_role"
+            referencedTableName="roles"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+</changeSet>
+
+<!-- 7. Create Time Track table -->
+<changeSet id="1749808101465-1" author="Shaxzod">
+    <createTable tableName="time_track">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="created_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updated_at" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+        <column name="date" type="date">
+            <constraints nullable="false"/>
+        </column>
+        <column name="delay_reason" type="varchar(255)"/>
+        <column name="end_reason" type="varchar(255)"/>
+        <column name="start_time" type="time(6)"/>
+        <column name="end_time" type="time(6)"/>
+        <column name="user_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+            baseTableName="time_track"
+            baseColumnNames="user_id"
+            constraintName="fk_time_track_user"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+</changeSet>
+
+<!-- 8. Create Track Settings table -->
+<changeSet id="1749811109602-1" author="Shaxzod">
+    <createTable tableName="track_settings">
+        <column name="id" type="bigint" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="from_time" type="time(6)"/>
+        <column name="to_time" type="time(6)"/>
+        <column name="track_settings_status" type="varchar(255)"/>
+    </createTable>
+</changeSet>
+
+</databaseChangeLog>

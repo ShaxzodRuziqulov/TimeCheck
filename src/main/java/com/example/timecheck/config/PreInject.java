@@ -1,10 +1,10 @@
 package com.example.timecheck.config;
 
-import com.example.timecheck.entity.Role;
-import com.example.timecheck.entity.User;
+import com.example.timecheck.entity.*;
+import com.example.timecheck.entity.enumirated.DepartmentStatus;
+import com.example.timecheck.entity.enumirated.JobStatus;
 import com.example.timecheck.entity.enumirated.UserStatus;
-import com.example.timecheck.repository.RoleRepository;
-import com.example.timecheck.repository.UserRepository;
+import com.example.timecheck.repository.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +23,9 @@ public class PreInject {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PositionRepository positionRepository;
+    private final DepartmentRepository departmentRepository;
+    private final JobRepository jobRepository;
 
 
     public String encodePassword(String rawPassword) {
@@ -47,6 +50,22 @@ public class PreInject {
         }
 
         if (userRepository.count() == 0) {
+            Position position = new Position();
+            position.setName("Position");
+
+            Department department = new Department();
+            department.setName("Department");
+            department.setDepartmentStatus(DepartmentStatus.ACTIVE);
+
+            position = positionRepository.save(position);
+            department = departmentRepository.save(department);
+
+            Job job = new Job();
+            job.setPosition(position);
+            job.setDepartment(department);
+            job.setJobStatus(JobStatus.ACTIVE);
+            job = jobRepository.save(job);
+
             User user = new User();
             user.setUsername("admin");
 
@@ -58,6 +77,7 @@ public class PreInject {
             user.setBirthDate(LocalDate.now());
             user.setUserStatus(UserStatus.ACTIVE);
             user.setPassword(encodePassword("123"));
+            user.setJob(job);
             userRepository.save(user);
         }
 

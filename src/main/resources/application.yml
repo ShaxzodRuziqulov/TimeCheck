@@ -2,6 +2,12 @@ server:
   port: 8080
 
 spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    contexts: dev
+    drop-first: false
+    clear-checksums: false
   datasource:
     url: jdbc:postgresql://localhost:5432/time_check
     username: postgres
